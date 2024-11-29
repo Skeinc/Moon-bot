@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"paths": {
+			"@assets/*": ["./assets/*"],
+			"@environments/*": ["./environments/*"],
+			"@logs/*": ["./logs/*"],
+			"@commands/*": ["./src/commands/*"],
+			"@constants/*": ["./src/constants/*"],
+			"@middlewares/*": ["./src/middlewares/*"],
+			"@services/*": ["./src/services/*"],
+			"@storage/*": ["./src/storage/*"],
+			"@types/*": ["./src/types/*"],
+			"@utils/*": ["./src/utils/*"],
+		},
+		"target": "es2016",
+		"module": "commonjs",
+		"outDir": "./dist",
+    	"rootDir": "./src",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"skipLibCheck": true
+	}
+}
