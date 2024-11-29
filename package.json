@@ -5,9 +5,9 @@
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start:dev": "NODE_ENV=development ts-node src/bot.ts",
-		"start:test": "NODE_ENV=testing ts-node src/bot.ts",
-		"start:prod": "NODE_ENV=production ts-node src/bot.ts"
+		"start:dev": "NODE_ENV=development ts-node -r tsconfig-paths/register src/bot.ts",
+		"start:test": "NODE_ENV=testing ts-node -r tsconfig-paths/register src/bot.ts",
+		"start:prod": "NODE_ENV=production ts-node -r tsconfig-paths/register src/bot.ts"
 	},
 	"author": "Anufriev Dmitry",
 	"license": "ISC",
@@ -19,6 +19,7 @@
 	"devDependencies": {
 		"@types/node": "^22.10.1",
 		"ts-node": "^10.9.2",
+		"tsconfig-paths": "^4.2.0",
 		"typescript": "^5.7.2"
 	}
 }

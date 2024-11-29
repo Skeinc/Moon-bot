@@ -13,7 +13,7 @@ if (!fs.existsSync(logsDir)) {
 }
 
 // Создаем основной логгер
-const logger = createLogger({
+export const logger = createLogger({
     levels: LOG_LEVELS.levels,
     level: DEFAULT_LOG_LEVEL,
     format: logFormat,
@@ -34,6 +34,3 @@ const logger = createLogger({
 logger.exceptions.handle(
     new transports.File({ filename: path.join(logsDir, 'exceptions.log') })
 );
-
-// Экспортируем логгер
-export default logger;
