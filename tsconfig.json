@@ -9,7 +9,7 @@
 			"@middlewares/*": ["./src/middlewares/*"],
 			"@services/*": ["./src/services/*"],
 			"@storage/*": ["./src/storage/*"],
-			"@types/*": ["./src/types/*"],
+			"@interfaces/*": ["./src/interfaces/*"],
 			"@utils/*": ["./src/utils/*"],
 		},
 		"target": "ES6",

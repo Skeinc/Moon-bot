@@ -1,4 +1,4 @@
-import { ResponseInterface } from "../types/response.interface";
+import { ResponseInterface } from "../interfaces/api/response.interface";
 import { httpService } from "./httpService.service";
 
 export class ApiService {
