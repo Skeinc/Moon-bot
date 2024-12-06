@@ -1,5 +1,6 @@
 import { logger } from "@services/logger.service";
 import { loadEnv } from "@utils/envLoader.util";
+import { initConfig } from "@utils/initConfig.util";
 import { Bot } from "grammy";
 
 // Загружаем переменные окружения
@@ -16,11 +17,19 @@ if(!botToken) {
 // Создаем экземпляр бота
 const bot = new Bot(botToken);
 
-// Обработка событий запуска бота
-bot.start().then(() => {
-    logger.info("Бот успешно запущен.");
-}).catch((error) => {
-    logger.error(`Ошибка запуска бота: ${error.message}`);
-    
-    process.exit(1);
-});
+(async () => {
+    try {
+        // Устанавливаем начальную конфигурацию
+        await initConfig(bot);
+
+        // Запуск бота
+        await bot.start();
+
+        logger.info("Бот успешно запущен.");
+    } 
+    catch (error: any) {
+        logger.error(`Ошибка запуска бота: ${error.message}`);
+
+        process.exit(1);
+    }
+})();

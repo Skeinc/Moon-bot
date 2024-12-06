@@ -4,6 +4,7 @@
 			"@assets/*": ["./assets/*"],
 			"@environments/*": ["./environments/*"],
 			"@logs/*": ["./logs/*"],
+			"@actions/*": ["./src/actions/*"],
 			"@commands/*": ["./src/commands/*"],
 			"@constants/*": ["./src/constants/*"],
 			"@middlewares/*": ["./src/middlewares/*"],
