@@ -1,5 +1,5 @@
+import { backToMenu } from "@actions/menu.action";
 import { getSupportButton } from "@constants/buttons.const";
-import { backToMenuKeyboard } from "@constants/keyboards.const";
 import { Context } from "grammy";
 
 export const supportCommand= async (ctx: Context) => {
@@ -18,12 +18,5 @@ export const supportCommand= async (ctx: Context) => {
         parse_mode: "Markdown",
     });
 
-    await ctx.reply("Выберите действие из меню ниже:", {
-        reply_markup: {
-            keyboard: backToMenuKeyboard.build(),
-            resize_keyboard: true,
-            is_persistent: true,
-        },
-        parse_mode: "Markdown",
-    });
+    await backToMenu(ctx);
 }

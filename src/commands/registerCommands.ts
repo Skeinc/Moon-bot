@@ -7,10 +7,13 @@ import { supportCommand } from "./support.command";
 import { bonusCommand } from "./bonus.command";
 import { subscriptionCommand } from "./subscription.command";
 import { referralCommand } from "./referral.command";
+import { newSpreadCommand } from "./newSpread.command";
 
 export default function registerCommands(bot: Bot): void {
     // Регистрируем команду /start
     bot.command("start", startCommand);
+    // Регистрируем команду /new_spread
+    bot.command("new_spread", newSpreadCommand);
     // Регистрируем команду /bonus
     bot.command("bonus", bonusCommand);
     // Регистрируем команду /subscription

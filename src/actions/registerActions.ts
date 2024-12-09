@@ -7,10 +7,13 @@ import { supportCommand } from "@commands/support.command";
 import { bonusCommand } from "@commands/bonus.command";
 import { subscriptionCommand } from "@commands/subscription.command";
 import { referralCommand } from "@commands/referral.command";
+import { newSpreadCommand } from "@commands/newSpread.command";
 
 export default function registerActions(bot: Bot): void {
     // Обработчик нажатия "В главное меню"
     bot.hears("🏠 В главное меню", sendMenu);
+    // Обработчик нажатия "Новый расклад"
+    bot.hears("🔮 Новый расклад", newSpreadCommand);
     // Обработчик нажатия "Бонусы"
     bot.hears("🎁 Бонусы", bonusCommand);
     // Обработчик нажатия "Подписка"

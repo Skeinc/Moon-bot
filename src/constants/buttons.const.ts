@@ -30,10 +30,10 @@ export const internationalPaymentButtons = new InlineKeyboard()
 
 // Кнопки для рефералки, когда ее нет
 export const emptyReferralButtons = new InlineKeyboard()
-    .add({ text: "🔗 Получить ссылку", callback_data: "generate_referral_link" }).row()
+    .add({ text: "🔗 Создать ссылку", callback_data: "generate_referral_link" }).row()
     .add({ text: "🎁 Мои бонусы", callback_data: "my_bonuses" });
 
 // Кнопки для рефералки, когда она есть
 export const hasReferralButtons = new InlineKeyboard()
-    .add({ text: "🔗 Получить ссылку", callback_data: "generate_referral_link" }).row()
-    .add({ text: "🎁 Мои бонусы", callback_data: "generate_new_referral_link" });
+    .add({ text: "🔗 Получить ссылку", callback_data: "get_referral_link" }).row()
+    .add({ text: "🎁 Мои бонусы", callback_data: "my_bonuses" });

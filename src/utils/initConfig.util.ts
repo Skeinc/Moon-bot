@@ -1,5 +1,5 @@
-import { sendMenu } from "@actions/menu.action";
 import registerActions from "@actions/registerActions";
+import { registerCallbacks } from "@callbacks/registerCallbacks";
 import registerCommands from "@commands/registerCommands";
 import { logger } from "@services/logger.service";
 import { Bot } from "grammy";
@@ -11,6 +11,7 @@ export const initConfig = async (bot: Bot) => {
         // Устанавливаем подсказку
         await bot.api.setMyCommands([
             { command: "start", description: "Запустить бота" },
+            { command: "new_spread", description: "🔮 Новый расклад" },
             { command: "bonus", description: "🎁 Бонусы" },
             { command: "subscription", description: "💎 Подписка" },
             { command: "custom_spread", description: "🗓 Индивидуальный расклад" },
@@ -28,4 +29,7 @@ export const initConfig = async (bot: Bot) => {
 
     // Регистрируем обработчики действий
     registerActions(bot);
+
+    // Регистрируем обратные вызовы
+    registerCallbacks(bot);
 }

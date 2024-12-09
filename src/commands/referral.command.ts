@@ -1,5 +1,5 @@
+import { backToMenu } from "@actions/menu.action";
 import { emptyReferralButtons, hasReferralButtons } from "@constants/buttons.const";
-import { backToMenuKeyboard } from "@constants/keyboards.const";
 import { Context } from "grammy"
 
 export const referralCommand = async (ctx: Context) => {
@@ -26,12 +26,5 @@ export const referralCommand = async (ctx: Context) => {
         });
     }
 
-    await ctx.reply("Выберите действие из меню ниже:", {
-        reply_markup: {
-            keyboard: backToMenuKeyboard.build(),
-            resize_keyboard: true,
-            is_persistent: true,
-        },
-        parse_mode: "Markdown",
-    });
+    await backToMenu(ctx);
 }

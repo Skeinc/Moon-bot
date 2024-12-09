@@ -1,5 +1,5 @@
+import { backToMenu } from "@actions/menu.action";
 import { subscriptionButtons } from "@constants/buttons.const";
-import { backToMenuKeyboard } from "@constants/keyboards.const";
 import { Context } from "grammy";
 
 export const subscriptionCommand = async (ctx: Context) => {
@@ -22,14 +22,7 @@ export const subscriptionCommand = async (ctx: Context) => {
             parse_mode: "Markdown",
         });
 
-        await ctx.reply("Выберите действие из меню ниже:", {
-            reply_markup: {
-                keyboard: backToMenuKeyboard.build(),
-                resize_keyboard: true,
-                is_persistent: true,
-            },
-            parse_mode: "Markdown",
-        });
+        await backToMenu(ctx);
     } else {
         // Если подписка активна
         const subscriptionDescription = `
@@ -38,13 +31,6 @@ export const subscriptionCommand = async (ctx: Context) => {
 ⏳ **Осталось ${daysLeft} дней до её окончания.**
         `;
 
-        await ctx.reply(subscriptionDescription, {
-            reply_markup: {
-                keyboard: backToMenuKeyboard.build(),
-                resize_keyboard: true,
-                is_persistent: true,
-            },
-            parse_mode: "Markdown",
-        });
+        await backToMenu(ctx, subscriptionDescription);
     }
 }

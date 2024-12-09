@@ -5,6 +5,7 @@
 			"@environments/*": ["./environments/*"],
 			"@logs/*": ["./logs/*"],
 			"@actions/*": ["./src/actions/*"],
+			"@callbacks/*": ["./src/callbacks/*"],
 			"@commands/*": ["./src/commands/*"],
 			"@constants/*": ["./src/constants/*"],
 			"@middlewares/*": ["./src/middlewares/*"],
