@@ -1,3 +1,4 @@
+import { getMenuKeyboard } from "@constants/keyboards.const";
 import { Context } from "grammy";
 
 export const startCommand = async (ctx: Context) => {
@@ -15,7 +16,13 @@ export const startCommand = async (ctx: Context) => {
         "С любовью, твой персональный таролог Moon. 💫\n\n" +
         "P.S. Если что-то пошло не так, попробуй нажать /start.\n" +
         "Меню находится внизу, рядом с полем для ввода текста.\n\n" +
-        "Для связи с техподдержкой: @bot_lovemyself."
+        "Для связи с техподдержкой: @bot_lovemyself.", {
+            reply_markup: {
+                keyboard: getMenuKeyboard().build(),
+                resize_keyboard: true,
+                is_persistent: true,
+            },
+        }
     );
 
     // Второе сообщение: проверка подписки и доступных запросов
