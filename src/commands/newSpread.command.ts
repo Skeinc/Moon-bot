@@ -1,10 +1,22 @@
+import { checkTelegramID } from "@utils/checkTelegramID.util";
 import { Context } from "grammy";
 
 export const newSpreadCommand = async (ctx: Context) => {
+    if(!await checkTelegramID(ctx)) {
+        return;
+    }
+    
     // Переменные для теста
     const freeRequests = 3;
     const hasSubscription = false;
     const subscriptionDaysLeft = 0;
+    
+    const userId = ctx.from?.id;
+
+    if (!userId) {
+        await ctx.reply("Не удалось определить ваш идентификатор. Попробуйте снова.");
+        return;
+    }
 
     // Второе сообщение: проверка подписки и доступных запросов
     if (hasSubscription) {

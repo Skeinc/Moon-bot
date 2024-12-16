@@ -1,9 +1,14 @@
 
 import { backToMenu } from "@actions/menu.action";
 import { bonusButtons } from "@constants/buttons.const";
+import { checkTelegramID } from "@utils/checkTelegramID.util";
 import { Context } from "grammy";
 
 export const bonusCommand = async (ctx: Context) => {
+    if(!await checkTelegramID(ctx)) {
+        return;
+    }
+    
     // Тестовые переменные
     const claimedBonus: boolean = false;
 

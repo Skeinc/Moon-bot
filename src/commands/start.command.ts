@@ -1,8 +1,13 @@
 import { getMenuKeyboard } from "@constants/keyboards.const";
 import { Context } from "grammy";
 import { newSpreadCommand } from "./newSpread.command";
+import { checkTelegramID } from "@utils/checkTelegramID.util";
 
 export const startCommand = async (ctx: Context) => {
+    if(!await checkTelegramID(ctx)) {
+        return;
+    }
+
     // Первое сообщение
     await ctx.reply(
         "Привет! Я здесь, чтобы помочь тебе разобраться в твоем раскладе по колоде ТАРО МАНАРА.\n\n" +

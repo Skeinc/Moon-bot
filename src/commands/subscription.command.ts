@@ -1,8 +1,13 @@
 import { backToMenu } from "@actions/menu.action";
 import { subscriptionButtons } from "@constants/buttons.const";
+import { checkTelegramID } from "@utils/checkTelegramID.util";
 import { Context } from "grammy";
 
 export const subscriptionCommand = async (ctx: Context) => {
+    if(!await checkTelegramID(ctx)) {
+        return;
+    }
+    
     // Тестовые данные
     const hasActiveSubscription: boolean = false;
     const daysLeft: number = 3;

@@ -1,8 +1,13 @@
 import { backToMenu } from "@actions/menu.action";
 import { getSupportButton } from "@constants/buttons.const";
+import { checkTelegramID } from "@utils/checkTelegramID.util";
 import { Context } from "grammy";
 
 export const supportCommand= async (ctx: Context) => {
+    if(!await checkTelegramID(ctx)) {
+        return;
+    }
+    
     const supportDescription = `
 👋 **Добро пожаловать в службу поддержки!**
     

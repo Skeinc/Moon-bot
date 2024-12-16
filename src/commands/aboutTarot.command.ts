@@ -1,8 +1,13 @@
 import { backToMenu } from "@actions/menu.action";
 import { getMoreInfoButton } from "@constants/buttons.const";
+import { checkTelegramID } from "@utils/checkTelegramID.util";
 import { Context } from "grammy";
 
 export const aboutTarotCommand = async (ctx: Context) => {
+    if(!await checkTelegramID(ctx)) {
+        return;
+    }
+    
     const tarotDescription = `
 Таро — это система из 78 карт, используемых для гадания и саморазмышлений. Колода делится на два типа карт:
 
