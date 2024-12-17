@@ -1,6 +1,10 @@
 export interface UserStateInterface {
-    userId: number;
-    roleId: number;
+    id: string;
+    telegramId: string | number;
     username: string | null;
-    avaliableRequests: number;
+    roleId: number;
+    requestsLeft: number;
+    subscriptionExpiry: string | null;
+    referrerId: string | null;
+    referralLink: string;
 }

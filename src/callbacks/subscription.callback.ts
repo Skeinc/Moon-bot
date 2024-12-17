@@ -1,5 +1,9 @@
-import { internationalPaymentButtons } from "@constants/buttons.const";
-import { Context } from "grammy";
+import { TariffInterface } from "@interfaces/api/tariff.interface";
+import { TariffService } from "@services/tariffs.service";
+import { Context, InlineKeyboard } from "grammy";
+import { PaymentMethodsEnum } from "../enums/paymentMethod.enum";
+import { createSubscriptionButtons } from "@utils/generateSubscriptionButtons.util";
+import { logger } from "@services/logger.service";
 
 export const subscribeCallback = async (ctx: Context) => {
     const data = ctx.callbackQuery?.data;
@@ -29,13 +33,36 @@ export const subscribeCallback = async (ctx: Context) => {
 }
 
 export const internationalPaymentCallback = async (ctx: Context) => {
-    // Сообщение с инструкциями для международной оплаты
-    await ctx.reply(
-        "Оплатить подписку Telegram Stars\n\nВыберите подходящий вариант оплаты:",
-        {
-            reply_markup: internationalPaymentButtons,
+    let internationalSubscriptionKeyboard: InlineKeyboard;
+
+    // Получение списка тарифов
+    try {
+        const tariffsData: TariffInterface[] | null = await TariffService.getTariffsByPaymentMethod(PaymentMethodsEnum.TELEGRAM_STARS);
+
+        if(tariffsData && tariffsData.length > 0) {
+            // Создаем клавиатуру на основе полученных данных
+            internationalSubscriptionKeyboard = createSubscriptionButtons(tariffsData, PaymentMethodsEnum.TELEGRAM_STARS);
+
+            // Сообщение с инструкциями для международной оплаты
+            await ctx.reply(
+                "Оплатить подписку Telegram Stars\n\nВыберите подходящий вариант оплаты:",
+                {
+                    reply_markup: internationalSubscriptionKeyboard,
+                }
+            );
         }
-    );
+        else {
+            logger.error(`Не удалось найти тарифы по способу оплаты: ${PaymentMethodsEnum.UKASSA}`);
+
+            await ctx.reply("Не удалось найти подходящие тарифы. Попробуйте позже.");
+        }
+    } catch (error) {
+        logger.error(`Ошибка при поиске тарифов по способу оплаты: ${(error as Error).message}`);
+
+        await ctx.reply("Произошла ошибка при обработке вашей команды. Попробуйте позже.");
+
+        return;
+    }
 
     // Закрываем всплывающее уведомление, если нужно
     await ctx.answerCallbackQuery();

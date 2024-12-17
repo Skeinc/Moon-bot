@@ -11,23 +11,6 @@ export const bonusButtons = new InlineKeyboard()
     .add({ text: "🔗 Подписаться на канал", url: "https://t.me/Ske3y" }).row()
     .add({ text: "✅ Проверить подписку", callback_data: "check_subscription" });
 
-// Кнопки для подписки
-export const subscriptionButtons = new InlineKeyboard()
-    .add({ text: "🔟 10 запросов – 199 рублей", callback_data: "subscribe_10_requests" }).row()
-    .add({ text: "🔢 30 запросов – 349 рублей", callback_data: "subscribe_30_requests" }).row()
-    .add({ text: "🌐 1 день (безлимит) – 499 рублей", callback_data: "subscribe_1_day" }).row()
-    .add({ text: "🌐 7 дней (безлимит) – 699 рублей", callback_data: "subscribe_7_days" }).row()
-    .add({ text: "🌐 30 дней (безлимит) – 999 рублей", callback_data: "subscribe_30_days" }).row()
-    .add({ text: "🌍 Международная оплата", callback_data: "international_payment" });
-
-// Кнопки для международной оплаты
-export const internationalPaymentButtons = new InlineKeyboard()
-    .add({ text: "🔟 10 запросов – 119 ⭐️", callback_data: "international_subscribe_10_requests" }).row()
-    .add({ text: "🔢 30 запросов – 179 ⭐️", callback_data: "international_subscribe_30_requests" }).row()
-    .add({ text: "🌐 1 день (безлимит) – 299 ⭐️", callback_data: "international_subscribe_1_day" }).row()
-    .add({ text: "🌐 7 дней (безлимит) – 399 ⭐️", callback_data: "international_subscribe_7_days" }).row()
-    .add({ text: "🌐 30 дней (безлимит) – 599 ⭐️", callback_data: "international_subscribe_30_days" });
-
 // Кнопки для рефералки, когда ее нет
 export const emptyReferralButtons = new InlineKeyboard()
     .add({ text: "🔗 Создать ссылку", callback_data: "generate_referral_link" }).row()

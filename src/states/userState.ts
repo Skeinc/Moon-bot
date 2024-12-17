@@ -1,43 +1,48 @@
 import { UserStateInterface } from "@interfaces/states/userState.interface";
+import { logger } from "@services/logger.service";
 
 export class UserStateManager {
     private userState: Map<number, UserStateInterface> = new Map();
 
     // Получить состояние пользователя
-    public getUserState(userId: number): UserStateInterface | undefined {
-        return this.userState.get(userId);
+    public getUserState(telegramId: number): UserStateInterface | undefined {
+        return this.userState.get(telegramId);
     }
 
     // Инициализировать состояние пользователя
-    public initializeUser(userId: number, roleId: number, initialRequests: number = 3): void {
-        if(!this.userState.has(userId)) {
-            this.userState.set(userId, {
-                userId,
-                roleId,
-                username: null,
-                avaliableRequests: initialRequests,
+    public initializeUser(data: UserStateInterface): void {
+        if(!this.userState.has(Number(data.telegramId))) {
+            this.userState.set(Number(data.telegramId), {
+                id: data.id,
+                telegramId: Number(data.telegramId),
+                username: data.username,
+                roleId: data.roleId,
+                requestsLeft: data.requestsLeft,
+                subscriptionExpiry: data.subscriptionExpiry,
+                referrerId: data.referrerId,
+                referralLink: data.referralLink,
             });
         }
     }
 
     // Обновление состояния пользователя
-    public updateUserState(userId: number, updates: Partial<UserStateInterface>): void {
-        const currentState = this.getUserState(userId);
+    public updateUserState(telegramId: number, updates: Partial<UserStateInterface>): void {
+        const currentState = this.getUserState(telegramId);
 
         if(!currentState) {
-            this.initializeUser(userId, 2, 3);
+            logger.error(`Не удалось обновить пользователя с telegramId: ${telegramId}`)
         }
         else {
-            this.userState.set(userId, { ...currentState, ...updates });
+            this.userState.set(telegramId, { ...currentState, ...updates });
         }
     }
 
     // Обновить количество доступных запросов
-    public updateAvaliableRequests(userId: number, delta: number): void {
-        const user = this.userState.get(userId);
+    public updateAvaliableRequests(telegramId: number, delta: number): void {
+        const user = this.userState.get(telegramId);
 
         if(user) {
-            user.avaliableRequests = Math.max(0, user.avaliableRequests + delta);
+            user.requestsLeft = Math.max(0, user.requestsLeft + delta);
         }
     }
 
@@ -46,3 +51,6 @@ export class UserStateManager {
         this.userState.delete(userId);
     }
 }
+
+// Экспортируем единственный экземпляр
+export const userStateManager = new UserStateManager();

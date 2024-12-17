@@ -2,7 +2,7 @@ import { Context } from "grammy";
 
 export const checkSubscriptionCallback = async (ctx: Context) => {
     // Переменные для теста
-    const isSubscribed: boolean = true;
+    const isSubscribed: boolean = false;
 
     await ctx.answerCallbackQuery({
         text: "Проверяем вашу подписку... ⏳",

@@ -1,32 +1,80 @@
+import { UserInterface } from "@interfaces/api/user.interface";
+import { logger } from "@services/logger.service";
+import { UserService } from "@services/user.service";
 import { checkTelegramID } from "@utils/checkTelegramID.util";
 import { Context } from "grammy";
+import { pluralize } from "@utils/pluralize.util";
+import { getTimeRemainingInDays, getTimeRemainingInHMS, getTimeRemainingInSeconds } from "@utils/date.util";
+import { SessionStepsEnum } from "../enums/session.enum";
+import { sessionStateManager } from "../states/sessionState";
 
 export const newSpreadCommand = async (ctx: Context) => {
     if(!await checkTelegramID(ctx)) {
         return;
     }
-    
-    // Переменные для теста
-    const freeRequests = 3;
-    const hasSubscription = false;
-    const subscriptionDaysLeft = 0;
-    
-    const userId = ctx.from?.id;
 
-    if (!userId) {
-        await ctx.reply("Не удалось определить ваш идентификатор. Попробуйте снова.");
+    // Данные пользователя
+    const telegramId = ctx.from?.id!;
+    
+    // Данные необходимые для обработки команды
+    const commandData = {
+        freeRequests: 0,
+        hasSubscription: false,
+        subscriptionExpiry: '',
+    };
+
+    // Проверяем данные пользователя
+    try {
+        const userData: UserInterface | null = await UserService.getUserByTelegramId(telegramId);
+
+        if(userData) {
+            // Обновляем кол-во бесплатных запросов
+            commandData.freeRequests = userData.requestsLeft;
+
+            // Обновляем данные подписки
+            if(userData.subscriptionExpiry) {
+                const remainingSeconds = getTimeRemainingInSeconds(userData.subscriptionExpiry);
+
+                if (remainingSeconds > 0) {
+                    commandData.hasSubscription = true;
+                    commandData.subscriptionExpiry = userData.subscriptionExpiry;
+                }
+            }
+        }
+        else {
+            logger.error(`Не удалось найти пользователя с telegram ID: ${telegramId}`);
+
+            await ctx.reply("Произошла ошибка при обработке вашей команды, попробуйте нажать /start.");
+        }
+    } catch (error) {
+        logger.error(`Ошибка при обработке пользователя: ${(error as Error).message}`);
+
+        await ctx.reply("Произошла ошибка при обработке вашей команды. Попробуйте позже.");
+
         return;
     }
 
     // Второе сообщение: проверка подписки и доступных запросов
-    if (hasSubscription) {
-        await ctx.reply(
-            `У вас активна подписка ещё ${subscriptionDaysLeft} дней. ✨`
-        );
+    if (commandData.hasSubscription) {
+        const days = pluralize(getTimeRemainingInDays(commandData.subscriptionExpiry), "день", "дня", "дней");
+
+        if(getTimeRemainingInDays(commandData.subscriptionExpiry) > 0) {
+            await ctx.reply(
+                `У вас активна подписка ещё ${getTimeRemainingInDays(commandData.subscriptionExpiry).toString()} ${days}. ✨`
+            );
+        }
+        else {
+            await ctx.reply(
+                `У вас активна подписка ещё ${getTimeRemainingInHMS(commandData.subscriptionExpiry) ?? '0 дней'}. ✨`
+            );
+        }
     }
-    else if (freeRequests > 0) {
+    else if (commandData.freeRequests > 0) {
+        const free = pluralize(commandData.freeRequests, "бесплатный", "бесплатных", "бесплатных");
+        const requests = pluralize(commandData.freeRequests, "запрос", "запроса", "запросов");
+
         await ctx.reply(
-            `У вас нет активной подписки, но вам доступно ${freeRequests} бесплатных запроса. ✨`
+            `У вас нет активной подписки, но вам доступно ${commandData.freeRequests} ${free} ${requests}. ✨`
         );
     }
     else {
@@ -42,7 +90,14 @@ export const newSpreadCommand = async (ctx: Context) => {
     }
 
     // Третье сообщение: предложение начать расклад
-    if (hasSubscription || freeRequests > 0) {
+    if (commandData.hasSubscription || commandData.freeRequests > 0) {
         await ctx.reply("Напишите свой вопрос картам, чтобы начать расклад:");
+
+        if(!sessionStateManager.getSessionState(telegramId)) {
+            sessionStateManager.setSession(telegramId);
+        }
+
+        // Обновляем статус сессии
+        sessionStateManager.updateSessionState(telegramId, {currentStep: SessionStepsEnum.QUESTION_INPUT});
     }
 }

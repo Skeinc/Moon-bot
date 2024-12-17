@@ -2,7 +2,7 @@ import axios from "axios";
 import { logger } from "./logger.service";
 
 export const httpService = axios.create({
-    baseURL: process.env.BACKEND_URL,
+    baseURL: process.env.API_BASE_URL || "http://localhost:3000",
     timeout: 10000,
     headers: {
         "Content-Type": "application/json"
