@@ -4,12 +4,12 @@ import { sessionStateManager } from "../states/sessionState";
 import { SessionStepsEnum } from "../enums/session.enum";
 import { RequestService } from "@services/request.service";
 import { userStateManager } from "../states/userState";
-import { RequestTypesEnum } from "../enums/request.enum";
+import { RequestStatusesEnum, RequestTypesEnum } from "../enums/request.enum";
 import { logger } from "@services/logger.service";
 import { UserInterface } from "@interfaces/api/user.interface";
 import { UserService } from "@services/user.service";
 import { generateRandomCards } from "@utils/generateRandomCards.util";
-import { CreateRequestInterface } from "@interfaces/api/request.interface";
+import { CreateRequestInterface, RequestInterface } from "@interfaces/api/request.interface";
 import { newSpreadCommand } from "@commands/newSpread.command";
 
 export const handleSpreadAction = async (ctx: Context) => {
@@ -37,6 +37,7 @@ export const handleSpreadAction = async (ctx: Context) => {
 
     try {
         const storageUserData = userStateManager.getUserState(telegramId);
+        sessionStateManager.updateSessionState(telegramId, { currentStep: SessionStepsEnum.CARD_SELECTION });
         const cards: string[] = generateRandomCards(3);
 
         // Подготовка сообщения о процессе расклада
@@ -68,7 +69,7 @@ export const handleSpreadAction = async (ctx: Context) => {
 
         if (requestData) {
             // Успешный ответ с бэкенда
-            const openAIResponse = requestData.openAIResponse || "Вселенная не смогла дать четкий ответ.";
+            const openAIResponse = requestData.responseData.answer || "Вселенная не смогла дать четкий ответ.";
             const selectedCards = cards.join(", ");
 
             // Форматированный вывод для пользователя
@@ -84,10 +85,22 @@ ${selectedCards}
 
             await ctx.reply(responseMessage, { parse_mode: "Markdown" });
 
-            sessionStateManager.updateSessionState(telegramId, { currentStep: SessionStepsEnum.CARD_SELECTION });
+            const updatedRequest: RequestInterface | null = await RequestService.updateRequest(requestData.id, {
+                status: RequestStatusesEnum.COMPLETED,
+                finishedAt: new Date().toISOString(),
+            });
 
-            // Вызов newSpreadCommand
-            await newSpreadCommand(ctx);
+            if(updatedRequest) {
+                sessionStateManager.updateSessionState(telegramId, { currentStep: SessionStepsEnum.IDLE });
+
+                // Вызов newSpreadCommand
+                await newSpreadCommand(ctx);
+            }
+            else {
+                logger.error(`Ошибка при обновлении расклада пользователя с ID: ${requestData.id}`);
+        
+                await ctx.reply("Произошла ошибка при обработке вашего расклада, попробуйте нажать /start.");
+            }
         }
 
     } catch (error) {

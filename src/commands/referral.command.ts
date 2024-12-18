@@ -4,6 +4,8 @@ import { logger } from "@services/logger.service";
 import { checkTelegramID } from "@utils/checkTelegramID.util";
 import { Context } from "grammy"
 import { referralStateManager } from "../states/referralState";
+import { sessionStateManager } from "../states/sessionState";
+import { SessionStepsEnum } from "../enums/session.enum";
 
 export const referralCommand = async (ctx: Context) => {
     if(!await checkTelegramID(ctx)) {
@@ -11,7 +13,14 @@ export const referralCommand = async (ctx: Context) => {
     }
     
     // Данные пользователя
-    const telegramId = ctx.from?.id!;
+    const telegramId: number = ctx.from?.id!;
+
+    if(!sessionStateManager.getSessionState(telegramId)) {
+        sessionStateManager.setSession(telegramId);
+    }
+
+    // Обновляем статус сессии
+    sessionStateManager.updateSessionState(telegramId, {currentStep: SessionStepsEnum.IDLE});
 
     // Данные необходимые для обработки команды
     const commandData = {

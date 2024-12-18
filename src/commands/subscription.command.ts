@@ -10,6 +10,8 @@ import { pluralize } from "@utils/pluralize.util";
 import { Context, InlineKeyboard } from "grammy";
 import { PaymentMethodsEnum } from "../enums/paymentMethod.enum";
 import { createSubscriptionButtons } from "@utils/generateSubscriptionButtons.util";
+import { sessionStateManager } from "../states/sessionState";
+import { SessionStepsEnum } from "../enums/session.enum";
 
 export const subscriptionCommand = async (ctx: Context) => {
     if(!await checkTelegramID(ctx)) {
@@ -17,7 +19,14 @@ export const subscriptionCommand = async (ctx: Context) => {
     }
 
     // Данные пользователя
-    const telegramId = ctx.from?.id!;
+    const telegramId: number = ctx.from?.id!;
+
+    if(!sessionStateManager.getSessionState(telegramId)) {
+        sessionStateManager.setSession(telegramId);
+    }
+
+    // Обновляем статус сессии
+    sessionStateManager.updateSessionState(telegramId, {currentStep: SessionStepsEnum.IDLE});
     
     // Данные необходимые для обработки команды
     const commandData = {

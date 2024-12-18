@@ -2,11 +2,22 @@ import { backToMenu } from "@actions/menu.action";
 import { getMoreInfoButton } from "@constants/buttons.const";
 import { checkTelegramID } from "@utils/checkTelegramID.util";
 import { Context } from "grammy";
+import { sessionStateManager } from "../states/sessionState";
+import { SessionStepsEnum } from "../enums/session.enum";
 
 export const aboutTarotCommand = async (ctx: Context) => {
     if(!await checkTelegramID(ctx)) {
         return;
     }
+
+    const telegramId: number = ctx.from?.id!;
+
+    if(!sessionStateManager.getSessionState(telegramId)) {
+        sessionStateManager.setSession(telegramId);
+    }
+
+    // Обновляем статус сессии
+    sessionStateManager.updateSessionState(telegramId, {currentStep: SessionStepsEnum.IDLE});
     
     const tarotDescription = `
 Таро — это система из 78 карт, используемых для гадания и саморазмышлений. Колода делится на два типа карт:

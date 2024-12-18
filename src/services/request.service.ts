@@ -1,4 +1,4 @@
-import { CreateRequestInterface } from "@interfaces/api/request.interface";
+import { CreateRequestInterface, RequestInterface } from "@interfaces/api/request.interface";
 import { RequestStatusesEnum, RequestTypesEnum } from "../enums/request.enum";
 import { ApiService } from "./apiService.service";
 
@@ -17,6 +17,21 @@ export class RequestService {
         };
 
         const response = await ApiService.postData<CreateRequestInterface>("/requests", requestData);
+
+        if (response.success && response.data) {
+            return response.data;
+        } else {
+            return null;
+        }
+    }
+
+    static async updateRequest(userId: string, updates: Partial<RequestInterface>): Promise<RequestInterface | null> {
+        const requestData = {
+            id: userId,
+            ...updates,
+        };
+
+        const response = await ApiService.putData<RequestInterface>("/requests", requestData);
 
         if (response.success && response.data) {
             return response.data;

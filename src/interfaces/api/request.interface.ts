@@ -25,5 +25,4 @@ export interface CreateRequestInterface {
     createdAt: string;
     updatedAt: string;
     finishedAt: string | null;
-    openAIResponse?: string;
 }
