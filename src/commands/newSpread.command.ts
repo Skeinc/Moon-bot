@@ -45,6 +45,8 @@ export const newSpreadCommand = async (ctx: Context) => {
             logger.error(`Не удалось найти пользователя с telegram ID: ${telegramId}`);
 
             await ctx.reply("Произошла ошибка при обработке вашей команды, попробуйте нажать /start.");
+
+            return;
         }
     } catch (error) {
         logger.error(`Ошибка при обработке пользователя: ${(error as Error).message}`);

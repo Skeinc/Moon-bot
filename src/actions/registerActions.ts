@@ -1,4 +1,4 @@
-import { Bot } from "grammy";
+import { Bot, Context } from "grammy";
 import { sendMenu } from "./menu.action";
 import { customSpreadCommand } from "@commands/customSpread.command";
 import { aboutTarotCommand } from "@commands/aboutTarot.command";
@@ -8,6 +8,9 @@ import { bonusCommand } from "@commands/bonus.command";
 import { subscriptionCommand } from "@commands/subscription.command";
 import { referralCommand } from "@commands/referral.command";
 import { newSpreadCommand } from "@commands/newSpread.command";
+import { sessionStateManager } from "../states/sessionState";
+import { SessionStepsEnum } from "../enums/session.enum";
+import { handleSpreadAction } from "./spread.action";
 
 export default function registerActions(bot: Bot): void {
     // Обработчик нажатия "В главное меню"
@@ -28,4 +31,16 @@ export default function registerActions(bot: Bot): void {
     bot.hears("📖 О картах Таро", aboutTarotCommand);
     // Обработчик нажатия "🛠 Админ Панель"
     bot.hears("🛠 Админ Панель", adminPanelCommand);
+    // Обработка всех текстовых сообщений
+    bot.on("message:text", async (ctx: Context) => {
+        const telegramId = ctx.from?.id;
+
+        if (!telegramId) return;
+
+        const session = sessionStateManager.getSessionState(telegramId);
+
+        if (session?.currentStep === SessionStepsEnum.QUESTION_INPUT) {
+            await handleSpreadAction(ctx);
+        }
+    });
 }

@@ -5,8 +5,13 @@ import { PaymentMethodsEnum } from "../enums/paymentMethod.enum";
 export const createSubscriptionButtons = (tariffs: TariffInterface[], paymentMethodId: PaymentMethodsEnum) => {
     const keyboard = new InlineKeyboard();
 
-    // Добавляем кнопки из тарифа
-    tariffs.forEach(tariff => {
+    // Сортировка тарифов по цене по убыванию
+    const sortedTariffs: TariffInterface[] = tariffs.sort(
+        (a: TariffInterface, b: TariffInterface) => Number(a.price) - Number(b.price)
+    );
+
+    // Добавляем кнопки из отсортированного тарифа
+    sortedTariffs.forEach(tariff => {
         if (tariff.isActive) {
             keyboard.add({
                 text: `${tariff.name}`,
