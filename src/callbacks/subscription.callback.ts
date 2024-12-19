@@ -11,9 +11,10 @@ import { UserService } from "@services/user.service";
 import { TransactionInterface } from "@interfaces/api/transaction.interface";
 import { TransactionService } from "@services/transaction.service";
 import { CurrencyEnum } from "../enums/currency.enum";
-import { TransactionStatusesEnum, TransactionTypesEnum } from "../enums/transaction.enum";
-import { InternationalSubscribeCallbacksEnum, SubscribeCallbacksEnum } from "../enums/subscription.enum";
+import { TransactionStatusesEnum } from "../enums/transaction.enum";
+import { SubscribeCallbacksEnum } from "../enums/subscription.enum";
 import { getTransactionTypeByCallback } from "@utils/getTransactionTypeByCallback.util";
+import { getTimeRemainingInHMS, getTimeRemainingInSeconds } from "@utils/date.util";
 
 export const subscribeCallback = async (ctx: Context) => {
     if (!await checkTelegramID(ctx)) {
@@ -29,36 +30,103 @@ export const subscribeCallback = async (ctx: Context) => {
         return;
     }
 
+    // Получение данных пользователя
+    let userData: UserInterface | UserStateInterface | undefined | null = userStateManager.getUserState(telegramId);
+
+    if(!userData) {
+        userData = await UserService.getUserByTelegramId(telegramId);
+
+        if(!userData) {
+            await ctx.reply(`
+🚧 *Произошла ошибка!*  
+Мы не смогли найти информацию о вас.  
+Попробуйте позже или обратитесь в поддержку. 🙏
+`.trim(), { parse_mode: "Markdown" });
+                
+            return;
+        }
+    }
+
     // Данные для оплаты
     let amount: string = "";
     let description: string = "";
 
     switch (data) {
         case SubscribeCallbacksEnum.SUBSCRIBE_10_REQUESTS:
+            if(userData.subscriptionExpiry && getTimeRemainingInSeconds(userData.subscriptionExpiry) > 0) {
+                await ctx.reply(`
+🎉 У вас уже есть активная подписка!  
+⏳ Время до окончания: ${getTimeRemainingInHMS(userData.subscriptionExpiry)}.
+Вы можете продолжать использовать свои преимущества!
+`.trim(), { parse_mode: "Markdown" });
+
+                return;
+            }
+
             await ctx.reply("🎉 Вы выбрали подписку: 10 запросов за 199 рублей. Ожидайте инструкций для оплаты.");
             amount = "199.00";
             description = "Подписка: 10 запросов";
 
             break;
         case SubscribeCallbacksEnum.SUBSCRIBE_30_REQUESTS:
+            if(userData.subscriptionExpiry && getTimeRemainingInSeconds(userData.subscriptionExpiry) > 0) {
+                await ctx.reply(`
+🎉 У вас уже есть активная подписка!  
+⏳ Время до окончания: ${getTimeRemainingInHMS(userData.subscriptionExpiry)}.
+Вы можете продолжать использовать свои преимущества!
+`.trim(), { parse_mode: "Markdown" });
+
+                return;
+            }
+
             await ctx.reply("🎉 Вы выбрали подписку: 30 запросов за 349 рублей. Ожидайте инструкций для оплаты.");
             amount = "349.00";
             description = "Подписка: 30 запросов";
 
             break;
         case SubscribeCallbacksEnum.SUBSCRIBE_1_DAY:
+            if(userData.subscriptionExpiry && getTimeRemainingInSeconds(userData.subscriptionExpiry) > 0) {
+                await ctx.reply(`
+🎉 У вас уже есть активная подписка!  
+⏳ Время до окончания: ${getTimeRemainingInHMS(userData.subscriptionExpiry)}.
+Вы можете продолжать использовать свои преимущества!
+`.trim(), { parse_mode: "Markdown" });
+
+                return;
+            }
+
             await ctx.reply("🎉 Вы выбрали подписку: 1 день (безлимит) за 499 рублей. Ожидайте инструкций для оплаты.");
             amount = "499.00";
             description = "Подписка: 1 день (безлимит)";
             
             break;
         case SubscribeCallbacksEnum.SUBSCRIBE_7_DAYS:
+            if(userData.subscriptionExpiry && getTimeRemainingInSeconds(userData.subscriptionExpiry) > 0) {
+                await ctx.reply(`
+🎉 У вас уже есть активная подписка!  
+⏳ Время до окончания: ${getTimeRemainingInHMS(userData.subscriptionExpiry)}.
+Вы можете продолжать использовать свои преимущества!
+`.trim(), { parse_mode: "Markdown" });
+
+                return;
+            }
+
             await ctx.reply("🎉 Вы выбрали подписку: 7 дней (безлимит) за 699 рублей. Ожидайте инструкций для оплаты.");
             amount = "699.00";
             description = "Подписка: 7 дней (безлимит)";
 
             break;
         case SubscribeCallbacksEnum.SUBSCRIBE_30_DAYS:
+            if(userData.subscriptionExpiry && getTimeRemainingInSeconds(userData.subscriptionExpiry) > 0) {
+                await ctx.reply(`
+🎉 У вас уже есть активная подписка!  
+⏳ Время до окончания: ${getTimeRemainingInHMS(userData.subscriptionExpiry)}.
+Вы можете продолжать использовать свои преимущества!
+`.trim(), { parse_mode: "Markdown" });
+
+                return;
+            }
+
             await ctx.reply("🎉 Вы выбрали подписку: 30 дней (безлимит) за 999 рублей. Ожидайте инструкций для оплаты.");
             amount = "999.00";
             description = "Подписка: 30 дней (безлимит)";
@@ -83,23 +151,6 @@ export const subscribeCallback = async (ctx: Context) => {
 `.trim(), { parse_mode: "Markdown" });
 
             return;
-        }
-
-        // Получение данных пользователя
-        let userData: UserInterface | UserStateInterface | undefined | null = userStateManager.getUserState(telegramId);
-
-        if(!userData) {
-            userData = await UserService.getUserByTelegramId(telegramId);
-
-            if(!userData) {
-                await ctx.reply(`
-🚧 *Произошла ошибка!*  
-Мы не смогли найти информацию о вас.  
-Попробуйте позже или обратитесь в поддержку. 🙏
-`.trim(), { parse_mode: "Markdown" });
-                    
-                return;
-            }
         }
 
         // Создание платежа через YooKassa
