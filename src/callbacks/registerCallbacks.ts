@@ -1,7 +1,8 @@
 import { Bot } from "grammy";
 import { checkSubscriptionCallback } from "./bonus.callback";
 import { referralCallback } from "./referral.callback";
-import { handleInternationalSubscription, internationalPaymentCallback, subscribeCallback } from "./subscription.callback";
+import { subscribeCallback } from "./subscription.callback";
+import { handleInternationalSubscription, internationalPaymentCallback } from "./internationalSubscription.callback";
 
 
 export const registerCallbacks = (bot: Bot) => {

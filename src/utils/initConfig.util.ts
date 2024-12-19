@@ -3,6 +3,7 @@ import { registerCallbacks } from "@callbacks/registerCallbacks";
 import registerCommands from "@commands/registerCommands";
 import { logger } from "@services/logger.service";
 import { Bot } from "grammy";
+import { registerWebhook } from "../webhooks/registerWebhook";
 
 export const initConfig = async (bot: Bot) => {
     try {
@@ -32,4 +33,13 @@ export const initConfig = async (bot: Bot) => {
 
     // Регистрируем обратные вызовы
     registerCallbacks(bot);
+
+    // Регистрируем webhook
+    try {
+        await registerWebhook();
+    } catch (error) {
+        logger.error('Критическая ошибка: не удалось зарегистрировать вебхук. Завершаем процесс.');
+        
+        process.exit(1);
+    }
 }

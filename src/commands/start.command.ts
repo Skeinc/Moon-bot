@@ -105,7 +105,7 @@ export const startCommand = async (ctx: Context) => {
                 subscriptionExpiry: userData.subscriptionExpiry,
                 referrerId: userData.referrerId,
                 referralLink: userData.referralLink,
-            })
+            });
         }
     } catch (error) {
         logger.error(`Ошибка при обработке пользователя: ${(error as Error).message}`);

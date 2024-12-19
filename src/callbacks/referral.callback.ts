@@ -21,90 +21,106 @@ export const referralCallback = async (ctx: Context) => {
     const telegramId = ctx.from?.id!;
     let userData: UserInterface | UserStateInterface | undefined | null = userStateManager.getUserState(telegramId);
 
-    // Данные необходимые для обработки команды
-    const commandData = {
-        referralQuantity: 0,
-    };
-
-    if(userData) {
-        // Определяем сколько пользователей пригласил пользователь
+    // Получаем данные пользователя
+    if (!userData) {
         try {
-            const referralsData: ReferralInterface[] | null = await ReferralService.getReferralsByReferrerId(userData.id);
+            userData = await UserService.getUserByTelegramId(telegramId);
 
-            if(referralsData) {
-                commandData.referralQuantity = referralsData.length;
-            }
+            if (userData) {
+                userStateManager.initializeUser({
+                    id: userData.id,
+                    telegramId: userData.telegramId,
+                    username: userData.username,
+                    roleId: userData.roleId,
+                    requestsLeft: userData.requestsLeft,
+                    subscriptionExpiry: userData.subscriptionExpiry,
+                    referrerId: userData.referrerId,
+                    referralLink: userData.referralLink,
+                });
+            } 
             else {
-                logger.error(`Не удалось найти рефералов с ID: ${userData.id}`);
+                await ctx.reply(`
+🚧 *Пользователь не найден!*  
+Мы не смогли найти ваш аккаунт в системе.  
+Попробуйте нажать /start и начать сначала.
+`.trim(), { parse_mode: "Markdown" });
 
-                await ctx.reply("Произошла ошибка при обработке вашей команды. Попробуйте позже.");
+                return;
             }
         } catch (error) {
-            logger.error(`Ошибка при обработке пользователя: ${(error as Error).message}`);
+            logger.error(`Ошибка получения данных пользователя: ${(error as Error).message}`);
 
-            await ctx.reply("Произошла ошибка при обработке вашей команды. Попробуйте позже.");
+            await ctx.reply(`
+🚧 *Ошибка сервера!*  
+Мы не смогли обработать ваш запрос. Попробуйте позже.
+`.trim(), { parse_mode: "Markdown" });
 
             return;
         }
     }
-    else {
-        userData = await UserService.getUserByTelegramId(telegramId);
 
-        if (userData) {
-            // Определяем сколько пользователей пригласил пользователь
-            try {
-                const referralsData: ReferralInterface[] | null = await ReferralService.getReferralsByReferrerId(userData.id);
+    // Определяем количество рефералов
+    let referralQuantity = 0;
 
-                if(referralsData) {
-                    commandData.referralQuantity = referralsData.length;
-                }
-                else {
-                    logger.error(`Не удалось найти рефералов с ID: ${userData.id}`);
+    try {
+        const referralsData: ReferralInterface[] | null = await ReferralService.getReferralsByReferrerId(userData.id);
 
-                    await ctx.reply("Произошла ошибка при обработке вашей команды. Попробуйте позже.");
-                }
-            } catch (error) {
-                logger.error(`Ошибка при обработке пользователя: ${(error as Error).message}`);
+        referralQuantity = referralsData ? referralsData.length : 0;
+    } catch (error) {
+        logger.error(`Ошибка получения рефералов пользователя: ${(error as Error).message}`);
 
-                await ctx.reply("Произошла ошибка при обработке вашей команды. Попробуйте позже.");
+        await ctx.reply(`
+🚧 *Ошибка сервера!*  
+Мы не смогли проверить ваши рефералы. Попробуйте позже.
+`.trim(), { parse_mode: "Markdown" });
 
-                return;
-            }
-        } 
-        else {
-            logger.error(`Не удалось найти пользователя с telegram ID: ${telegramId}`);
-
-            await ctx.reply("Произошла ошибка при обработке вашего расклада, попробуйте нажать /start.");
-
-            return;
-        }
+        return;
     }
 
     switch (data) {
         case "generate_referral_link":
-            // Создаем реферальную систему в storage
-            referralStateManager.initReferralState(telegramId, true, userData.referralLink, commandData.referralQuantity);
+            // Инициализируем реферальную систему в storage
+            referralStateManager.initReferralState(telegramId, true, userData.referralLink, referralQuantity);
 
-            await ctx.reply(`Ваша реферальная ссылка: ${userData.referralLink}`);
+            await ctx.reply(`
+🔗 Ваша реферальная ссылка:
+${userData.referralLink}  
+Приглашайте друзей, чтобы получать бонусы! 🎉
+`.trim());
+
             break;
         case "get_referral_link":
             // Обновляем реферальную систему в storage
-            referralStateManager.updateReferralState(telegramId, { referredUsers: commandData.referralQuantity });
+            referralStateManager.updateReferralState(telegramId, { referredUsers: referralQuantity });
 
-            await ctx.reply(`Ваша реферальная ссылка: ${userData.referralLink}`);
+            await ctx.reply(`
+🔗 Ваша реферальная ссылка:  
+${userData.referralLink}  
+Поделитесь ею, чтобы получать бонусы за приглашенных пользователей! 🎉
+`.trim());
+
             break;
         case "my_bonuses":
-            const invites = pluralize(commandData.referralQuantity, "приглашенный", "приглашенных", "приглашенных");
-            const users = pluralize(commandData.referralQuantity, "пользователь", "пользователя", "пользователей");
-            const requests = pluralize(commandData.referralQuantity, "запрос", "запроса", "запросов");
-            const bonus = pluralize(commandData.referralQuantity, "бонусный", "бонусных", "бонусных");
+            const invites = pluralize(referralQuantity, "приглашенный", "приглашенных", "приглашенных");
+            const users = pluralize(referralQuantity, "пользователь", "пользователя", "пользователей");
+            const requests = pluralize(referralQuantity, "запрос", "запроса", "запросов");
+            const bonus = pluralize(referralQuantity, "бонусный", "бонусных", "бонусных");
 
-            await ctx.reply(
-                `У вас ${commandData.referralQuantity} ${invites} ${users}, вы получили ${commandData.referralQuantity} ${bonus} ${requests}.`
-            );
+            await ctx.reply(`
+🎁 *Ваши бонусы:*  
+- Вы пригласили: *${referralQuantity}* ${invites} ${users}.  
+- Получено бонусов: *${referralQuantity}* ${bonus} ${requests}.  
+                
+Спасибо за использование нашей реферальной программы! 🌟
+`.trim(), { parse_mode: "Markdown" });
+
             break;
         default:
-            await ctx.reply("Неизвестная команда рефералки.");
+            await ctx.reply(`
+❓ *Неизвестная команда!*  
+Пожалуйста, попробуйте снова или обратитесь в поддержку, если проблема сохраняется.
+`.trim(), { parse_mode: "Markdown" });
+
             break;
     }
 
