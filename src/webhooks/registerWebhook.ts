@@ -16,7 +16,6 @@ export async function registerWebhook(): Promise<void> {
 
         logger.info('Webhook успешно зарегистрирован:', response.data);
     } catch (error) {
-        console.log(process.env.YOOKASSA_SHOP_ID, process.env.YOOKASSA_SECRET_KEY);
         logger.error('Не удалось зарегистрировать webhook:', error);
     }
 }
