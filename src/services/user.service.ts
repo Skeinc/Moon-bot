@@ -34,4 +34,20 @@ export class UserService {
             return null;
         }
     }
+
+    // Обновление пользователя
+    static async updateUser(id: string, updates: Partial<UserInterface>): Promise<UserInterface | null> {
+        const requestData = {
+            id: id,
+            ...updates,
+        };
+
+        const response = await ApiService.putData<UserInterface>("/users", requestData);
+
+        if (response.success && response.data) {
+            return response.data;
+        } else {
+            return null;
+        }
+    }
 }

@@ -80,7 +80,7 @@ export const handleSpreadAction = async (ctx: Context) => {
 ${selectedCards}
 
 🌌 *Вселенная ответила*:  
-"${openAIResponse}"
+${openAIResponse}
             `.trim();
 
             await ctx.reply(responseMessage, { parse_mode: "Markdown" });

@@ -11,6 +11,8 @@ import { newSpreadCommand } from "@commands/newSpread.command";
 import { sessionStateManager } from "../states/sessionState";
 import { SessionStepsEnum } from "../enums/session.enum";
 import { handleSpreadAction } from "./spread.action";
+import { SuccessfulPayment } from "grammy/types";
+import { PaymentService } from "@services/payment.service";
 
 export default function registerActions(bot: Bot): void {
     // Обработчик нажатия "В главное меню"
@@ -41,6 +43,21 @@ export default function registerActions(bot: Bot): void {
 
         if (session?.currentStep === SessionStepsEnum.QUESTION_INPUT) {
             await handleSpreadAction(ctx);
+        }
+    });
+    bot.on("pre_checkout_query", async (ctx: Context) => {
+        await ctx.answerPreCheckoutQuery(true);
+    });
+    bot.on("message:successful_payment", async (ctx: Context) => {
+        const paymentInfo: SuccessfulPayment | undefined = ctx.message?.successful_payment;
+    
+        const telegramId = ctx.from?.id;
+
+        if(paymentInfo && telegramId) {
+            PaymentService.handleSuccessfulPayment(ctx, paymentInfo, telegramId);
+        }
+        else {
+            await ctx.reply("❌ К сожалению, ваша оплата была отменена. Если у вас возникли вопросы или проблемы, пожалуйста, свяжитесь с нашей службой поддержки. Мы всегда готовы помочь!");
         }
     });
 }

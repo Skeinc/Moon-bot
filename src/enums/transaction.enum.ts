@@ -5,6 +5,7 @@ export enum TransactionTypesEnum {
 
 export enum TransactionStatusesEnum {
     FAILED = 'failed',
+    CANCELED = 'canceled',
     PENDING = 'pending',
     COMPLETED = 'completed'
 }
